@@ -1,13 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
+import 'package:examplify/data/repositories/auth_repository.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState>{
-  AuthBloc() : super(const AuthInitial()){
+  final AuthRepository _authRepository;
+
+  AuthBloc({required AuthRepository authRepository}) :
+        _authRepository = authRepository,
+        super(const AuthInitial()){
     on<LoginRequested>(_onLoginRequested);
     on<SignupRequested>(_onSignupRequested);
     on<LogoutRequested>(_onLogoutRequested);
   }
+
 
 
   Future<void> _onLoginRequested(
@@ -16,16 +22,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
   ) async{
     emit(const AuthLoading());
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    if(event.email == 'test@test.com' && event.password == '123456'){
-      emit(const AuthAuthenticated(userId: 'dummy_user_id'));
-    }
-    else{
-      emit(const AuthError(message: 'Invalid email or password'));
+    try{
+      final userId = await _authRepository.login(
+          email: event.email,
+          password: event.password,
+      );
+      emit(AuthAuthenticated(userId: userId));
+    }catch (e){
+      emit(AuthError(message: e.toString()));
       emit(const AuthUnauthenticated());
     }
   }
+
 
 
   Future<void> _onSignupRequested(
@@ -34,15 +42,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
   ) async{
     emit(const AuthLoading());
 
-    await Future.delayed(const Duration(seconds: 1));
-
-    emit(const AuthAuthenticated(userId: 'new_user_id'));
+    try{
+      final userId = await _authRepository.signUp(
+          email: event.email,
+          password: event.password
+      );
+      emit(AuthAuthenticated(userId: userId));
+    } catch (e){
+      emit(AuthError(message: e.toString()));
+      emit(const AuthUnauthenticated());
+    }
   }
 
-  void _onLogoutRequested(
+
+
+  Future<void> _onLogoutRequested(
       LogoutRequested event,
       Emitter<AuthState> emit,
-  ) {
+  ) async{
+    await _authRepository.logout();
     emit(const AuthUnauthenticated());
   }
 }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
+
+import 'package:examplify/data/repositories/auth_repository.dart';
+import 'package:examplify/features/auth/bloc/auth_bloc.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,10 +16,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(child: Text("Firebase Initialized"),),
+    return RepositoryProvider(
+      create: (_) => AuthRepository(),
+      child: BlocProvider(
+        create: (context) =>
+          AuthBloc(authRepository: context.read<AuthRepository>()),
+        child: const MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: Scaffold(
+            body: Center(child: Text('Auth Bloc Ready'),),
+          ),
+        ),
       ),
     );
   }
