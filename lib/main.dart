@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'package:examplify/app/app.dart';
 import 'package:examplify/data/repositories/auth_repository.dart';
 import 'package:examplify/features/auth/bloc/auth_bloc.dart';
 
@@ -23,9 +24,7 @@ class MyApp extends StatelessWidget {
           AuthBloc(authRepository: context.read<AuthRepository>()),
         child: const MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: Scaffold(
-            body: Center(child: Text('Auth Bloc Ready'),),
-          ),
+          home: App()
         ),
       ),
     );
