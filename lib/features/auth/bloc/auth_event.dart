@@ -38,6 +38,11 @@ class SignupRequested extends AuthEvent{
 }
 
 
+class AppStarted extends AuthEvent{
+  const AppStarted();
+}
+
+
 class LogoutRequested extends AuthEvent{
   const LogoutRequested();
 }

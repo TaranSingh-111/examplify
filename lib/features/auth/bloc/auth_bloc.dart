@@ -9,6 +9,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
   AuthBloc({required AuthRepository authRepository}) :
         _authRepository = authRepository,
         super(const AuthInitial()){
+    on<AppStarted>(_onAppStarted);
     on<LoginRequested>(_onLoginRequested);
     on<SignupRequested>(_onSignupRequested);
     on<LogoutRequested>(_onLogoutRequested);
@@ -50,6 +51,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
       emit(AuthAuthenticated(userId: userId));
     } catch (e){
       emit(AuthError(message: e.toString()));
+      emit(const AuthUnauthenticated());
+    }
+  }
+
+
+
+  Future<void> _onAppStarted(
+    AppStarted event,
+    Emitter<AuthState> emit
+  ) async{
+    emit(const AuthLoading());
+
+    final userId = _authRepository.currentUserId;
+
+    if(userId != null){
+      emit(AuthAuthenticated(userId: userId));
+    }
+    else{
       emit(const AuthUnauthenticated());
     }
   }

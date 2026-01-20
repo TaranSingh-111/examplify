@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'package:examplify/app/app.dart';
 import 'package:examplify/data/repositories/auth_repository.dart';
+import 'package:examplify/features/auth/bloc/auth_event.dart';
 import 'package:examplify/features/auth/bloc/auth_bloc.dart';
 
 void main() async{
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       create: (_) => AuthRepository(),
       child: BlocProvider(
         create: (context) =>
-          AuthBloc(authRepository: context.read<AuthRepository>()),
+          AuthBloc(authRepository: context.read<AuthRepository>())..add(const AppStarted()),
         child: const MaterialApp(
           debugShowCheckedModeBanner: false,
           home: App()

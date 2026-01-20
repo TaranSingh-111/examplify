@@ -7,6 +7,8 @@ class AuthRepository{
   AuthRepository({FirebaseAuthService? authService}):
       _authService = authService ?? FirebaseAuthService();
 
+  String? get currentUserId => _authService.currentUser?.uid;
+
 
   Future<String> signUp({
     required String email,
