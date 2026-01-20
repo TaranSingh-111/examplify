@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "675100913771",
+    "project_id": "examplify-30df4",
+    "storage_bucket": "examplify-30df4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675100913771:android:28b27bc6ea91a95e7b012e",
+        "android_client_info": {
+          "package_name": "com.example.examplify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDz8G_pWg23d7sMpwDtQuDOmMoEJaHKY2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
