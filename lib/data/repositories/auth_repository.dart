@@ -1,24 +1,43 @@
+import 'package:examplify/data/services/firestore_user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:examplify/data/services/firebase_auth_service.dart';
 
 class AuthRepository{
   final FirebaseAuthService _authService;
+  final FirestoreUserService _userService;
 
-  AuthRepository({FirebaseAuthService? authService}):
-      _authService = authService ?? FirebaseAuthService();
+  AuthRepository({FirebaseAuthService? authService, FirestoreUserService? userService}):
+      _authService = authService ?? FirebaseAuthService(),
+      _userService = userService ?? FirestoreUserService();
 
   String? get currentUserId => _authService.currentUser?.uid;
 
 
   Future<String> signUp({
     required String email,
-    required String password
+    required String password,
+    required String name,
+    required int studentNo,
+    required String branch,
+    required String section,
+    required int year,
   }) async{
     try{
       final user = await _authService.signUp(
           email: email,
           password: password
       );
+
+      await _userService.createUserProfile(
+          uid: user.uid,
+          name: name,
+          email: email,
+          studentNo: studentNo,
+          branch: branch,
+          section: section,
+          year: year
+      );
+
       return user.uid;
     }on FirebaseAuthException catch(e){
       throw _mapFirebaseException(e);
