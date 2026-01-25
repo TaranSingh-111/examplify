@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
-  final String label;
+  final String hint;
+  final IconData? prefixIcon;
   final bool isPassword;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
@@ -10,7 +11,8 @@ class AuthTextField extends StatelessWidget {
   const AuthTextField({
     super.key,
     required this.controller,
-    required this.label,
+    required this.hint,
+    this.prefixIcon,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.validator,
@@ -23,13 +25,17 @@ class AuthTextField extends StatelessWidget {
       obscureText: isPassword,
       keyboardType: keyboardType,
       validator: validator,
+      style: const TextStyle(color: Colors.black),
       decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        hintText: hint,
+        prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
         filled: true,
-        fillColor: Colors.grey.shade100,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
       ),
     );
   }

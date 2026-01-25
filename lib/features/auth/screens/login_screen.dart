@@ -16,18 +16,18 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  void _onLoginPressed() {
+  void _login() {
     if (!_formKey.currentState!.validate()) return;
 
     context.read<AuthBloc>().add(
       LoginRequested(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       ),
     );
   }
@@ -35,62 +35,124 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AuthTextField(
-                    controller: _emailController,
-                    label: 'Email',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email is required';
-                      }
-                      return null;
-                    },
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF04151F), Color(0xFF0A3A4A)],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                return Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.white54),
                   ),
-                  const SizedBox(height: 16),
-                  AuthTextField(
-                    controller: _passwordController,
-                    label: 'Password',
-                    isPassword: true,
-                    validator: (value) {
-                      if (value == null || value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  AuthButton(
-                    text: 'Login',
-                    isLoading: state is AuthLoading,
-                    onPressed: _onLoginPressed,
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SignupScreen(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Sign in",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold),
                         ),
-                      );
-                    },
-                    child: const Text('Don\'t have an account? Sign up'),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "Sign in to your account via email",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        AuthTextField(
+                          controller: emailController,
+                          hint: "Enter your email id",
+                          prefixIcon: Icons.email_outlined,
+                          validator: (v) =>
+                          v == null || v.isEmpty ? "Required" : null,
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        AuthTextField(
+                          controller: passwordController,
+                          hint: "Enter your password",
+                          prefixIcon: Icons.lock_outline,
+                          isPassword: true,
+                          validator: (v) =>
+                          v == null || v.length < 6 ? "Min 6 chars" : null,
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        AuthButton(
+                          text: "Sign in",
+                          isLoading: state is AuthLoading,
+                          onPressed: _login,
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const SignupScreen()),
+                            );
+                          },
+                          child: const Text(
+                            "Create account",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        const Text(
+                          "Sign in with social media",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // GOOGLE BUTTON (UI ONLY)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: OutlinedButton.icon(
+                            onPressed: () {}, // intentionally empty
+                            icon: Image.network(
+                              "https://upload.wikimedia.org/wikipedia/commons/0/09/IOS_Google_icon.png",
+                              height: 20,
+                            ),
+                            label: const Text("Sign in with Google"),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
