@@ -1,16 +1,15 @@
-import 'package:examplify/data/services/firestore_user_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:examplify/data/services/firebase_auth_service.dart';
+import 'package:examplify/data/services/api_auth_service.dart';
+import 'package:jwt_decode/jwt_decode.dart';
+
 
 class AuthRepository{
-  final FirebaseAuthService _authService;
-  final FirestoreUserService _userService;
+  final ApiAuthService _apiAuthService;
 
-  AuthRepository({FirebaseAuthService? authService, FirestoreUserService? userService}):
-      _authService = authService ?? FirebaseAuthService(),
-      _userService = userService ?? FirestoreUserService();
+  AuthRepository({required ApiAuthService apiAuthService}):
+      _apiAuthService = apiAuthService;
 
-  String? get currentUserId => _authService.currentUser?.uid;
+  String? _cachedUserId;
+  String? _cachedToken;
 
 
   Future<String> signUp({
@@ -22,26 +21,21 @@ class AuthRepository{
     required String section,
     required int year,
   }) async{
-    try{
-      final user = await _authService.signUp(
+      final response = await _apiAuthService.signup(
           email: email,
-          password: password
-      );
-
-      await _userService.createUserProfile(
-          uid: user.uid,
+          password: password,
           name: name,
-          email: email,
           studentNo: studentNo,
           branch: branch,
           section: section,
-          year: year
+          year: year,
       );
 
-      return user.uid;
-    }on FirebaseAuthException catch(e){
-      throw _mapFirebaseException(e);
-    }
+      final data = response['data'];
+      final userId = data['id'] as String;
+
+      _cachedUserId = userId;
+      return userId;
   }
 
 
@@ -50,39 +44,26 @@ class AuthRepository{
     required String email,
     required String password,
   }) async{
-    try{
-      final user = await _authService.login(
-        email: email,
-        password: password
-      );
-      return user.uid;
-    }on FirebaseAuthException catch(e){
-      throw _mapFirebaseException(e);
-    }
+    final response = await _apiAuthService.login(
+      email: email,
+      password: password
+    );
+
+    final token = response['data']['token'] as String;
+
+    final decodedToken = Jwt.parseJwt(token);
+    final userId = decodedToken['_id'] as String;
+
+    _cachedUserId = userId;
+    _cachedToken = token;
+    return userId;
   }
 
 
 
   Future<void> logout() async{
-    await _authService.logout();
+
   }
 
-  bool get isLoggedIn => _authService.currentUser != null;
-
-  Exception _mapFirebaseException(FirebaseAuthException e){
-    switch(e.code){
-      case 'email-already-in-use':
-        return Exception('This email is already in registered.');
-      case 'invalid-email':
-        return Exception('Invalid email address.');
-      case 'weak-password':
-        return Exception('Password is too weak.');
-      case 'user-not-found':
-        return Exception('No account found with this email.');
-      case 'wrong-password':
-        return Exception('Incorrect password.');
-      default:
-        return Exception('Authentication failed. Please try again.');
-    }
-  }
+  String? get currentUserId => _cachedUserId;
 }

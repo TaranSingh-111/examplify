@@ -9,7 +9,8 @@ import '../widgets/auth_text_field.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback onSignupTap;
+  const LoginScreen({super.key, required this.onSignupTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -19,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  late final VoidCallback onSignupTap;
   final _formKey = GlobalKey<FormState>();
 
   void _login() {
@@ -104,11 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const SignupScreen()),
-                            );
+                            widget.onSignupTap();
                           },
                           child: const Text(
                             "Create account",

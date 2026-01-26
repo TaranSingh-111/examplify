@@ -1,3 +1,4 @@
+import 'package:examplify/features/auth/screens/auth_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,15 +12,14 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state){
-        if(state is AuthError){
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message))
-          );
-        }
-      },
-      child: BlocBuilder<AuthBloc, AuthState>(
+      return BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message))
+            );
+          }
+        },
         builder: (context, state){
           if(state is AuthLoading){
             return const Scaffold(
@@ -31,9 +31,8 @@ class App extends StatelessWidget {
             return const HomeScreen();
           }
 
-          return const LoginScreen();
-        },
-      ),
-    );
+          return const AuthContainer();
+        }
+      );
   }
 }

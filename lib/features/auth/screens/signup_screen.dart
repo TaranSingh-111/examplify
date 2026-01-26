@@ -8,7 +8,8 @@ import '../widgets/auth_button.dart';
 import '../widgets/auth_text_field.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+  final VoidCallback onLoginTap;
+  const SignupScreen({super.key, required this.onLoginTap});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -23,6 +24,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final section = TextEditingController();
   final year = TextEditingController();
 
+  late final VoidCallback onLoginTap;
   final _formKey = GlobalKey<FormState>();
 
   void _signup() {

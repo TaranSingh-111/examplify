@@ -8,8 +8,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
 
   AuthBloc({required AuthRepository authRepository}) :
         _authRepository = authRepository,
-        super(const AuthInitial()){
-    on<AppStarted>(_onAppStarted);
+        super(const AuthUnauthenticated()){
+   // on<AppStarted>(_onAppStarted);
     on<LoginRequested>(_onLoginRequested);
     on<SignupRequested>(_onSignupRequested);
     on<LogoutRequested>(_onLogoutRequested);
@@ -44,7 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
     emit(const AuthLoading());
 
     try{
-      final userId = await _authRepository.signUp(
+      await _authRepository.signUp(
         email: event.email,
         password: event.password,
         name: event.name,
@@ -53,6 +53,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         section: event.section,
         year: event.year,
       );
+      final userId = await _authRepository.login(
+        email: event.email,
+        password: event.password,
+      );
+
       emit(AuthAuthenticated(userId: userId));
     } catch (e){
       emit(AuthError(message: e.toString()));
@@ -62,21 +67,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
 
 
 
-  Future<void> _onAppStarted(
-    AppStarted event,
-    Emitter<AuthState> emit
-  ) async{
-    emit(const AuthLoading());
-
-    final userId = _authRepository.currentUserId;
-
-    if(userId != null){
-      emit(AuthAuthenticated(userId: userId));
-    }
-    else{
-      emit(const AuthUnauthenticated());
-    }
-  }
+  // Future<void> _onAppStarted(
+  //   AppStarted event,
+  //   Emitter<AuthState> emit
+  // ) async{
+  //   emit(const AuthLoading());
+  //
+  //   final userId = _authRepository.currentUserId;
+  //
+  //   if(userId != null){
+  //     emit(AuthAuthenticated(userId: userId));
+  //   }
+  //   else{
+  //     emit(const AuthUnauthenticated());
+  //   }
+  // }
 
 
 
