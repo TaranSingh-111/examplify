@@ -1,3 +1,4 @@
+import 'package:examplify/core/errors/auth_exceptions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -8,88 +9,58 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
 
   AuthBloc({required AuthRepository authRepository}) :
         _authRepository = authRepository,
-        super(const AuthUnauthenticated()){
-   // on<AppStarted>(_onAppStarted);
-    on<LoginRequested>(_onLoginRequested);
-    on<SignupRequested>(_onSignupRequested);
-    on<LogoutRequested>(_onLogoutRequested);
+        super(const AuthState()) {
+    on<LoginEvent>(_onLogin);
+    on<RegisterEvent>(_onRegister);
   }
 
-
-
-  Future<void> _onLoginRequested(
-      LoginRequested event,
-      Emitter<AuthState> emit,
-  ) async{
-    emit(const AuthLoading());
+  Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async{
+    emit(state.copyWith(status: AuthStatus.loading));
 
     try{
-      final userId = await _authRepository.login(
+      final user = await _authRepository.login(
+        email: event.email,
+        password: event.password
+      );
+      emit(state.copyWith(status: AuthStatus.loginSuccess, user: user));
+    }on AuthException catch(e){
+      emit(state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: e.message
+      ));
+    }catch (e){
+      emit(state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'An unexpected error occured'
+      ));
+    }
+  }
+
+  Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async{
+    emit(state.copyWith(status: AuthStatus.loading));
+
+    try{
+      final registeredUser = await _authRepository.register(
+          name: event.name,
           email: event.email,
           password: event.password,
+          studentno: event.studentno,
+          branch: event.branch,
+          section: event.section,
+          year: event.year
       );
-      emit(AuthAuthenticated(userId: userId));
-    }catch (e){
-      emit(AuthError(message: e.toString()));
-      emit(const AuthUnauthenticated());
+
+      emit(state.copyWith(status: AuthStatus.registerSuccess, registerdUser: registeredUser));
+    }on AuthException catch(e){
+      emit(state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: e.message
+      ));
+    }catch(e){
+      emit(state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'An unexpected error occurred'
+      ));
     }
-  }
-
-
-
-  Future<void> _onSignupRequested(
-    SignupRequested event,
-    Emitter<AuthState> emit,
-  ) async{
-    emit(const AuthLoading());
-
-    try{
-      await _authRepository.signUp(
-        email: event.email,
-        password: event.password,
-        name: event.name,
-        studentNo: event.studentNo,
-        branch: event.branch,
-        section: event.section,
-        year: event.year,
-      );
-      final userId = await _authRepository.login(
-        email: event.email,
-        password: event.password,
-      );
-
-      emit(AuthAuthenticated(userId: userId));
-    } catch (e){
-      emit(AuthError(message: e.toString()));
-      emit(const AuthUnauthenticated());
-    }
-  }
-
-
-
-  // Future<void> _onAppStarted(
-  //   AppStarted event,
-  //   Emitter<AuthState> emit
-  // ) async{
-  //   emit(const AuthLoading());
-  //
-  //   final userId = _authRepository.currentUserId;
-  //
-  //   if(userId != null){
-  //     emit(AuthAuthenticated(userId: userId));
-  //   }
-  //   else{
-  //     emit(const AuthUnauthenticated());
-  //   }
-  // }
-
-
-
-  Future<void> _onLogoutRequested(
-      LogoutRequested event,
-      Emitter<AuthState> emit,
-  ) async{
-    await _authRepository.logout();
-    emit(const AuthUnauthenticated());
   }
 }

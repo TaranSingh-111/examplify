@@ -13,26 +13,13 @@ class AuthContainer extends StatefulWidget {
 class _AuthContainerState extends State<AuthContainer> {
   bool showLogin = true;
 
-  void switchToSignup(){
-    setState(() {
-      showLogin = false;
-    });
-  }
-
-  void swithToLogin(){
-    setState(() {
-      showLogin = true;
-    });
-  }
+  void switchToSignup() => setState(() => showLogin = false);
+  void switchToLogin() => setState(() => showLogin = true);
 
   @override
   Widget build(BuildContext context) {
     return showLogin
-    ? LoginScreen(
-      onSignupTap: switchToSignup,
-    )
-        :SignupScreen(
-      onLoginTap: swithToLogin
-    );
+    ? LoginScreen(onSignupTap: switchToSignup,)
+    :SignupScreen(onLoginTap: switchToLogin);
   }
 }

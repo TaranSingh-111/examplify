@@ -12,25 +12,11 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message))
-            );
-          }
-        },
+      return BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state){
-          if(state is AuthLoading){
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator(),),
-            );
-          }
-
-          if(state is AuthAuthenticated){
+          if(state.status == AuthStatus.loginSuccess){
             return const HomeScreen();
           }
-
           return const AuthContainer();
         }
       );

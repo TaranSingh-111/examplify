@@ -1,43 +1,37 @@
 import 'package:equatable/equatable.dart';
+import 'package:examplify/models/registered_user.dart';
+import '../../../models/user.dart';
 
-abstract class AuthState extends Equatable{
-  const AuthState();
+enum AuthStatus {initial, loading, loginSuccess, registerSuccess, error}
 
-  @override
-  List<Object?> get props => [];
-}
+class AuthState extends Equatable{
+  final AuthStatus status;
+  final User? user;
+  final RegisterdUser? registerdUser;
+  final String? errorMessage;
 
+  const AuthState({
+    this.status = AuthStatus.initial,
+    this.user,
+    this.registerdUser,
+    this.errorMessage
+});
 
-class AuthInitial extends AuthState{
-  const AuthInitial();
-}
-
-
-class AuthLoading extends AuthState{
-  const AuthLoading();
-}
-
-
-class AuthAuthenticated extends AuthState{
-  final String userId;
-
-  const AuthAuthenticated({required this.userId});
-
-  @override
-  List<Object?> get props => [userId];
-}
-
-
-class AuthUnauthenticated extends AuthState{
-  const AuthUnauthenticated();
-}
-
-
-class AuthError extends AuthState{
-  final String message;
-
-  const AuthError({required this.message});
+  AuthState copyWith({
+    AuthStatus? status,
+    User? user,
+    RegisterdUser? registerdUser,
+    String? errorMessage
+  }) {
+    return AuthState(
+      status: status ?? this.status,
+      user: user ?? this.user,
+      registerdUser: registerdUser ?? this.registerdUser,
+      errorMessage: errorMessage ?? this.errorMessage
+    );
+  }
 
   @override
-  List<Object?> get props => [message];
+  // TODO: implement props
+  List<Object?> get props => [status, user, registerdUser, errorMessage];
 }

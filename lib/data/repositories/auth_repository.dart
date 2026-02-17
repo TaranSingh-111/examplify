@@ -1,69 +1,71 @@
-import 'package:examplify/data/services/api_auth_service.dart';
-import 'package:jwt_decode/jwt_decode.dart';
+import 'package:examplify/core/errors/auth_exceptions.dart';
+import 'package:examplify/data/services/auth_api_service.dart';
+import 'package:examplify/features/auth/models/login_request.dart';
+import 'package:examplify/features/auth/models/register_request.dart';
+import 'package:examplify/models/registered_user.dart';
 
+import '../../models/user.dart';
 
 class AuthRepository{
-  final ApiAuthService _apiAuthService;
+  final AuthApiService _apiService;
 
-  AuthRepository({required ApiAuthService apiAuthService}):
-      _apiAuthService = apiAuthService;
+  AuthRepository({AuthApiService? apiService}) :
+      _apiService = apiService ?? AuthApiService();
 
-  String? _cachedUserId;
-  String? _cachedToken;
-
-
-  Future<String> signUp({
+  Future<User> login({
     required String email,
     required String password,
+}) async{
+    try{
+      final request = LoginRequest(email: email, password: password);
+      final response = await _apiService.login(request);
+
+      return User(
+        name: response.data.name,
+        token: response.data.token,
+        role: response.data.role
+      );
+    }
+    on Exception catch(e){
+      throw AuthException(e.toString().replaceAll('Exception:', ''));
+    }
+    catch(e){
+      throw AuthException('An unexpected error occured during login');
+    }
+  }
+
+  Future<RegisterdUser> register({
     required String name,
-    required int studentNo,
+    required String email,
+    required String password,
+    required int studentno,
     required String branch,
     required String section,
-    required int year,
-  }) async{
-      final response = await _apiAuthService.signup(
+    required int year
+}) async{
+    try{
+      final request = RegisterRequest(
+          name: name,
           email: email,
           password: password,
-          name: name,
-          studentNo: studentNo,
+          studentno: studentno,
           branch: branch,
           section: section,
-          year: year,
+          year: year
       );
+      final response = await _apiService.register(request);
 
-      final data = response['data'];
-      final userId = data['id'] as String;
-
-      _cachedUserId = userId;
-      return userId;
+      return RegisterdUser(
+          id: response.data.id,
+          email: response.data.email,
+          role: response.data.role,
+      );
+    }
+    on Exception catch(e){
+      throw AuthException(e.toString().replaceAll('Exception:', ''));
+    }
+    catch (e){
+      throw AuthException('An unexpected error occured during registration');
+    }
   }
-
-
-
-  Future<String> login({
-    required String email,
-    required String password,
-  }) async{
-    final response = await _apiAuthService.login(
-      email: email,
-      password: password
-    );
-
-    final token = response['data']['token'] as String;
-
-    final decodedToken = Jwt.parseJwt(token);
-    final userId = decodedToken['_id'] as String;
-
-    _cachedUserId = userId;
-    _cachedToken = token;
-    return userId;
-  }
-
-
-
-  Future<void> logout() async{
-
-  }
-
-  String? get currentUserId => _cachedUserId;
 }
