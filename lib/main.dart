@@ -1,4 +1,5 @@
 import 'package:examplify/app/router/app_routes.dart';
+import 'package:examplify/features/auth/bloc/auth_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,7 +19,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AuthBloc(authRepository: AuthRepository()),
+      create: (context) {
+        final bloc = AuthBloc(authRepository: AuthRepository());
+        bloc.add(CheckAuthStatusEvent());
+        return bloc;
+      },
       child: Builder(
           builder: (context){
             return MaterialApp.router(

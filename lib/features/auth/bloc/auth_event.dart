@@ -42,3 +42,15 @@ class RegisterEvent extends AuthEvent{
   // TODO: implement props
   List<Object?> get props => [name, email, password, studentno, branch, section, year];
 }
+
+class CheckAuthStatusEvent extends AuthEvent{
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
+
+class LogoutEvent extends AuthEvent{
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}

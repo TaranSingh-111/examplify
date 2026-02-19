@@ -12,6 +12,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         super(const AuthState()) {
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
+    on<CheckAuthStatusEvent>(_onCheckAuthStatus);
+    on<LogoutEvent>(_onLogout);
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async{
@@ -62,5 +64,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState>{
         errorMessage: 'An unexpected error occurred'
       ));
     }
+  }
+
+  Future<void> _onCheckAuthStatus(
+      CheckAuthStatusEvent event,
+      Emitter<AuthState> emit
+      ) async{
+    emit(state.copyWith(status: AuthStatus.loading));
+
+    try{
+      final user = await _authRepository.checkAuthStatus();
+
+      if(user != null){
+        emit(state.copyWith(
+          status: AuthStatus.loginSuccess,
+          user: user
+        ));
+      }
+      else{
+        emit(state.copyWith(status: AuthStatus.initial));
+      }
+    }
+    catch(e){
+      emit(state.copyWith(status: AuthStatus.initial));
+    }
+  }
+
+  Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async{
+    await _authRepository.logout();
+    emit(const AuthState());
   }
 }
