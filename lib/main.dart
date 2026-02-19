@@ -1,3 +1,4 @@
+import 'package:examplify/app/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,11 +19,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => AuthBloc(authRepository: AuthRepository()),
-      child: MaterialApp(
-        title: 'Examplify',
-        debugShowCheckedModeBanner: false,
-        home: const App(),
-      ),
+      child: Builder(
+          builder: (context){
+            return MaterialApp.router(
+              title: 'Examplify',
+              debugShowCheckedModeBanner: false,
+              routerConfig: AppRouter.router(context),
+            );
+          }
+        )
     );
   }
 }

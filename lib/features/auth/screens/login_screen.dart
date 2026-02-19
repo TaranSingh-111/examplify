@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -64,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
                 }
                 if(state.status == AuthStatus.loginSuccess){
-
+                  context.go('/home');
                 }
               },
 
@@ -148,10 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 50,
                           child: OutlinedButton.icon(
                             onPressed: () {}, // intentionally empty
-                            icon: Image.network(
-                              "https://upload.wikimedia.org/wikipedia/commons/0/09/IOS_Google_icon.png",
-                              height: 20,
-                            ),
+                            icon: Icon(Icons.g_mobiledata_sharp) ,
                             label: const Text("Sign in with Google"),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.white,
