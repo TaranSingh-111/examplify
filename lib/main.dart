@@ -1,15 +1,15 @@
+import 'package:examplify/app/router/app_routes.dart';
+import 'package:examplify/features/auth/bloc/auth_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 import 'package:examplify/app/app.dart';
 import 'package:examplify/data/repositories/auth_repository.dart';
-import 'package:examplify/features/auth/bloc/auth_event.dart';
 import 'package:examplify/features/auth/bloc/auth_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await dotenv.load(fileName: 'api_base.env');
   runApp(const MyApp());
 }
 
@@ -18,16 +18,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => AuthRepository(),
-      child: BlocProvider(
-        create: (context) =>
-          AuthBloc(authRepository: context.read<AuthRepository>())..add(const AppStarted()),
-        child: const MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: App()
-        ),
-      ),
+    return BlocProvider(
+      create: (context) {
+        final bloc = AuthBloc(authRepository: AuthRepository());
+        bloc.add(CheckAuthStatusEvent());
+        return bloc;
+      },
+      child: Builder(
+          builder: (context){
+            return MaterialApp.router(
+              title: 'Examplify',
+              debugShowCheckedModeBanner: false,
+              routerConfig: AppRouter.router(context),
+            );
+          }
+        )
     );
   }
 }

@@ -1,88 +1,105 @@
-import 'package:examplify/data/services/firestore_user_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:examplify/data/services/firebase_auth_service.dart';
+import 'dart:io';
+
+import 'package:examplify/core/errors/auth_exceptions.dart';
+import 'package:examplify/data/services/auth_api_service.dart';
+import 'package:examplify/data/services/secure_storage_service.dart';
+import 'package:examplify/features/auth/models/login_request.dart';
+import 'package:examplify/features/auth/models/register_request.dart';
+import 'package:examplify/models/registered_user.dart';
+
+import '../../models/user.dart';
 
 class AuthRepository{
-  final FirebaseAuthService _authService;
-  final FirestoreUserService _userService;
+  final AuthApiService _apiService;
+  final SecureStorageService _storageService;
 
-  AuthRepository({FirebaseAuthService? authService, FirestoreUserService? userService}):
-      _authService = authService ?? FirebaseAuthService(),
-      _userService = userService ?? FirestoreUserService();
+  AuthRepository({AuthApiService? apiService, SecureStorageService? secureService}) :
+      _apiService = apiService ?? AuthApiService(),
+      _storageService = secureService ?? SecureStorageService();
 
-  String? get currentUserId => _authService.currentUser?.uid;
-
-
-  Future<String> signUp({
+  Future<User> login({
     required String email,
     required String password,
-    required String name,
-    required int studentNo,
-    required String branch,
-    required String section,
-    required int year,
-  }) async{
+}) async{
     try{
-      final user = await _authService.signUp(
-          email: email,
-          password: password
+      final request = LoginRequest(email: email, password: password);
+      final response = await _apiService.login(request);
+
+      await _storageService.saveAuthData(
+          token: response.data.token,
+          name: response.data.name,
+          role: response.data.role
       );
 
-      await _userService.createUserProfile(
-          uid: user.uid,
+      return User(
+        name: response.data.name,
+        token: response.data.token,
+        role: response.data.role
+      );
+    }
+    on Exception catch(e){
+      throw AuthException(e.toString().replaceAll('Exception:', ''));
+    }
+    catch(e){
+      throw AuthException('An unexpected error occured during login');
+    }
+  }
+
+  Future<RegisterdUser> register({
+    required String name,
+    required String email,
+    required String password,
+    required int studentno,
+    required String branch,
+    required String section,
+    required int year
+}) async{
+    try{
+      final request = RegisterRequest(
           name: name,
           email: email,
-          studentNo: studentNo,
+          password: password,
+          studentno: studentno,
           branch: branch,
           section: section,
           year: year
       );
+      final response = await _apiService.register(request);
 
-      return user.uid;
-    }on FirebaseAuthException catch(e){
-      throw _mapFirebaseException(e);
-    }
-  }
-
-
-
-  Future<String> login({
-    required String email,
-    required String password,
-  }) async{
-    try{
-      final user = await _authService.login(
-        email: email,
-        password: password
+      return RegisterdUser(
+          id: response.data.id,
+          email: response.data.email,
+          role: response.data.role,
       );
-      return user.uid;
-    }on FirebaseAuthException catch(e){
-      throw _mapFirebaseException(e);
+    }
+    on Exception catch(e){
+      throw AuthException(e.toString().replaceAll('Exception:', ''));
+    }
+    catch (e){
+      throw AuthException('An unexpected error occured during registration');
     }
   }
 
 
+  Future<User?> checkAuthStatus() async{
+    try{
+      final userData = await _storageService.getUserData();
+      if(userData['token'] != null &&
+        userData['name'] != null &&
+        userData['role'] != null){
+        return User(
+          token: userData['token']!,
+          name: userData['name']!,
+          role: userData['role']!
+        );
+      }
+      return null;
+    } catch(e){
+      return null;
+    }
+  }
 
   Future<void> logout() async{
-    await _authService.logout();
-  }
-
-  bool get isLoggedIn => _authService.currentUser != null;
-
-  Exception _mapFirebaseException(FirebaseAuthException e){
-    switch(e.code){
-      case 'email-already-in-use':
-        return Exception('This email is already in registered.');
-      case 'invalid-email':
-        return Exception('Invalid email address.');
-      case 'weak-password':
-        return Exception('Password is too weak.');
-      case 'user-not-found':
-        return Exception('No account found with this email.');
-      case 'wrong-password':
-        return Exception('Incorrect password.');
-      default:
-        return Exception('Authentication failed. Please try again.');
-    }
+    await _storageService.clearAuthData();
   }
 }

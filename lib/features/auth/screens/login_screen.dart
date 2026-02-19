@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_button.dart';
 import '../widgets/auth_text_field.dart';
-import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback onSignupTap;
+  const LoginScreen({super.key, required this.onSignupTap});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -18,18 +19,24 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
 
   void _login() {
     if (!_formKey.currentState!.validate()) return;
 
     context.read<AuthBloc>().add(
-      LoginRequested(
+      LoginEvent(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       ),
     );
+  }
+
+  @override
+  void dispose(){
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -46,7 +53,22 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-            child: BlocBuilder<AuthBloc, AuthState>(
+            child: BlocConsumer<AuthBloc, AuthState>(
+
+              listener: (context, state){
+                if(state.status == AuthStatus.error){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.errorMessage ?? 'An unexpected error occured'),
+                      backgroundColor: Colors.red,
+                    )
+                  );
+                }
+                if(state.status == AuthStatus.loginSuccess){
+                  context.go('/home');
+                }
+              },
+
               builder: (context, state) {
                 return Container(
                   padding: const EdgeInsets.all(24),
@@ -96,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         AuthButton(
                           text: "Sign in",
-                          isLoading: state is AuthLoading,
+                          isLoading: state.status == AuthStatus.loading,
                           onPressed: _login,
                         ),
 
@@ -104,11 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const SignupScreen()),
-                            );
+                            widget.onSignupTap();
                           },
                           child: const Text(
                             "Create account",
@@ -131,10 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 50,
                           child: OutlinedButton.icon(
                             onPressed: () {}, // intentionally empty
-                            icon: Image.network(
-                              "https://upload.wikimedia.org/wikipedia/commons/0/09/IOS_Google_icon.png",
-                              height: 20,
-                            ),
+                            icon: Icon(Icons.g_mobiledata_sharp) ,
                             label: const Text("Sign in with Google"),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.white,

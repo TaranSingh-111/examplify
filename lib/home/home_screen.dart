@@ -1,3 +1,4 @@
+import 'package:examplify/core/utils/app_drawer.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -5,8 +6,12 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-        body: Center(child: Text('Home Screen'),)
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+      ),
+      drawer: AppDrawer(),
+      body: Center(child: Text('Home Screen'),)
     );
   }
 }
