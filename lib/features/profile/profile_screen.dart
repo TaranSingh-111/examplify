@@ -28,7 +28,6 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 const SizedBox(height: 12),
 
-                /// 👤 Avatar + Name
                 Center(
                   child: Column(
                     children: [
@@ -54,7 +53,6 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 32),
 
-                /// 📋 Info Card
                 Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -85,7 +83,6 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                /// 🚪 Logout Button
                 SizedBox(
                   width: double.infinity,
                   height: 48,
