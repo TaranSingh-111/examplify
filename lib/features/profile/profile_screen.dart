@@ -2,6 +2,8 @@ import 'package:examplify/core/utils/app_drawer.dart';
 import 'package:examplify/features/auth/bloc/auth_bloc.dart';
 import 'package:examplify/features/auth/bloc/auth_event.dart';
 import 'package:examplify/features/auth/bloc/auth_state.dart';
+import 'package:examplify/features/profile/widgets/pofile_header.dart';
+import 'package:examplify/features/profile/widgets/profile_info_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,10 +13,16 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      backgroundColor: const Color(0xFF071E26),
+      appBar: AppBar(title: const Text('Profile',style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),),backgroundColor: const Color(0xFF071E26),
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       drawer: const AppDrawer(),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
+        body: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
           final user = state.user;
 
           if (user == null) {
@@ -22,78 +30,40 @@ class ProfileScreen extends StatelessWidget {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 12),
+                ProfileHeader(
+                  name: user.name,
+                  role: user.role,
+                ),
 
-                Center(
-                  child: Column(
-                    children: [
-                      const CircleAvatar(
-                        radius: 40,
-                        child: Icon(Icons.person, size: 40),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        user.name,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        user.role,
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 24),
+
+                ProfileInfoCard(
+                  name: user.name,
+                  role: user.role,
                 ),
 
                 const SizedBox(height: 32),
 
-                Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        _InfoTile(
-                          label: 'Name',
-                          value: user.name,
-                          icon: Icons.person_outline,
-                        ),
-                        _InfoTile(
-                          label: 'Role',
-                          value: user.role,
-                          icon: Icons.badge_outlined,
-                        ),
-                        _InfoTile(
-                          label: 'Token',
-                          value: '${user.token.substring(0, 12)}...',
-                          icon: Icons.key_outlined,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
                 SizedBox(
                   width: double.infinity,
-                  height: 48,
+                  height: 52,
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(LogoutEvent());
-                    },
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Logout'),
+                    onPressed: () =>
+                        context.read<AuthBloc>().add(LogoutEvent()),
+                    icon: const Icon(Icons.logout,color: Colors.white,),
+                    label: const Text('Logout' , style: TextStyle(
+                      fontWeight:FontWeight.bold,
+                      fontSize: 20.0,
+                      color: Colors.white,
+                    ),),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.redAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
